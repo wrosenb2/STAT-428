@@ -27,6 +27,10 @@ renv/staging/
 renv/cache/
 renv/local/
 
+# Ignore python venv
+
+.venv
+
 # Operating system metadata
 .DS_Store
 Thumbs.db
