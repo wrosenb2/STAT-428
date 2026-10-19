@@ -1,8 +1,5 @@
 # Normalize text files in Git
-* text=auto
+* text=auto eol=lf
 
-# Keep R and R Markdown source files using LF (the Lord's endline)
-*.R text eol=lf
-*.r text eol=lf
-*.Rmd text eol=lf
-*.rmd text eol=lf
+# CSV should retain CRLF
+*.csv -text
