@@ -1,0 +1,45 @@
+# R session state and history
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+Rplots.pdf
+
+# RStudio local settings
+.Rproj.user/
+
+# Local environment variables (may contain credentials)
+.Renviron
+
+# R Markdown / knitr caches and intermediate files
+*_cache/
+*_files/
+*.knit.md
+*.utf8.md
+
+# R Markdown notebook previews
+*.nb.html
+
+# Local renv dependencies
+# Keep renv.lock and renv/activate.R tracked
+renv/library/
+renv/staging/
+renv/cache/
+renv/local/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+
+# .R, .Rmd, .Rproj, and data files remain trackable.
+# Optionally ignore rendered documents:
+# *.html
+# *.pdf
+# *.docx
+
+# VS Code workspace settings and local history
+.vscode/
+.history/
+*.code-workspace
+
+
