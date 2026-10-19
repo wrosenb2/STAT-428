@@ -31,11 +31,11 @@ renv/local/
 .DS_Store
 Thumbs.db
 
-# .R, .Rmd, .Rproj, and data files remain trackable.
-# Optionally ignore rendered documents:
-# *.html
-# *.pdf
-# *.docx
+# Ignore Rmd rendered documents and logs
+*.html
+*.pdf
+*.docx
+*.log
 
 # VS Code workspace settings and local history
 .vscode/
