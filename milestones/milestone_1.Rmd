@@ -1,0 +1,40 @@
+
+---
+title: "STAT 428 — Final Project: Milestone 1"
+subtitle: "Track Selection and Proposal"
+author: |
+  William Rosenbloom (wrosenb2@illinois.edu)  
+  Jenny Li (jennyli3@illinois.edu)
+date: "October 18, 2026"
+output:
+  pdf_document:
+    number_sections: false
+geometry: margin=0.8in
+fontsize: 14pt
+---
+
+## Selected Track
+
+We have selected track 2: Markov Chain Monte Carlo (MCMC).
+
+## Project Overview
+
+We will implement the Metropolis–Hastings algorithm in R to sample from posterior distributions whose normalizing constants are unavailable. Our primary objective is to investigate how the choice of proposal distribution affects mixing efficiency and computational performance.
+
+## Planned Implementation
+
+We plan to develop a general-purpose Metropolis–Hastings sampler that accepts a non-normalized log-target density and supports interchangeable proposal mechanisms. We will implement and compare three proposal types:
+
+1. **Symmetric random walk:** A multivariate Gaussian random-walk proposal centered at the current state.
+2. **Independent proposal:** A multivariate Gaussian proposal independent of the current state.
+3. **Non-symmetric, nonindependent proposal:** A Metropolis-Adjusted Langevin Algorithm (MALA) proposal that uses the gradient of the log-target density to guide candidate generation.
+
+We will implement the core algorithms ourselves in R. Our implementation will include functions for generating Markov chains, calculating acceptance rates and summary statistics, and producing trace and autocorrelation plots.
+
+We will validate the implementation using distributions with known properties, then conduct at least 500 simulation trials to compare the mixing efficiency of the three proposal mechanisms. Performance measures will include autocorrelation, effective sample size, and computational time. We will also investigate sensitivity to burn-in length and chain length.
+
+## Real-World Dataset and Application
+
+We have selected as our dataset UC Irvine's [*Wisconsin Breast Cancer (Diagnostic)*](https://archive.ics.uci.edu/dataset/17/breast%2Bcancer) dataset from 1995. The data includes 30 predictors (all continuous scalars representing measurements of cell nuclei obtained from breast mass images) and one binary outcome (*diagnosis*: malignant or benign).
+
+We plan to fit a Bayesian logistic regression model using selected predictors of malignancy. We will specify prior distributions for the regression coefficients and use our MCMC implementation to approximate their joint posterior distribution.
