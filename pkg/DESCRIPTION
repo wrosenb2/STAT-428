@@ -1,0 +1,30 @@
+Package: uiuc.mcmc
+Type: Package
+Title: Markov Chain Monte Carlo Sampler and Convergence Diagnostics
+Version: 0.1.0
+Authors@R: c(
+    person("William", "Rosenbloom", email = "wrosenb2@illinois.edu", role = c("aut", "cre")),
+    person("Jenny", "Li", email = "jennyli3@illinois.edu", role = "aut")
+  )
+Description: Implements a general Metropolis-Hastings Markov Chain Monte Carlo
+    (MCMC) sampler from scratch comparing Symmetric Random Walk, Independent,
+    and Metropolis-Adjusted Langevin Algorithm (MALA) proposal distributions,
+    along with S3 methods and standalone convergence diagnostics.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.5.0)
+Imports:
+    graphics,
+    MASS,
+    stats
+Suggests:
+    devtools,
+    knitr,
+    rmarkdown,
+    roxygen2,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.0

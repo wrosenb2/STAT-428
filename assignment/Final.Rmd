@@ -1,0 +1,155 @@
+---
+title: "STAT 428 Final Project"
+author: "STAT 428"
+date: "Fall 2026"
+output: pdf_document
+---
+
+# Project Overview
+The Final Project requires students to work in **pairs** to bridge the gap between statistical theory and computational implementation. You will develop a documented R package from scratch, conduct large-scale Monte Carlo simulations, and solve a practical problem using real-world data.
+
+# General Requirements
+* **Collaborative Framework**: Students are encouraged to form teams of two. You are encouraged to collaborate closely on data analysis, algorithm design, and R package development. Please email the instructor your team member choice before October 11. If you are unable to find a partner by October 11, the instructor will assign teams. Working alone is discouraged and permitted only with instructor approval.
+* **Joint Presentation**: Each group will deliver one 5 to 7-minute in-class presentation. Both members should participate in the delivery.
+* **Individual Reports**: While the technical core is shared, **each student must prepare and submit their own technical report separately**. Writing must be individual; direct copying of text between partners is prohibited.
+* **Implementation**: All core algorithms must be implemented by you; helper utilities may use standard libraries. You may use standard libraries for plotting, data wrangling, and basic utilities, but you may not use libraries that directly implement the core algorithm for your track (e.g., calling `integrate`, `cubature`, `coda`, or existing Monte Carlo/MCMC/test functions as a substitute for your implementation; using `integrate()` only to obtain a reference value for checking your estimates is fine).
+
+# Project Tracks
+Select **one** of the following three tracks.
+
+## Track 1: Monte Carlo Integration and Variance Reduction
+**Objective**: Estimate an expectation (integral) that has no closed form using Monte Carlo integration, and compare the efficiency of different variance reduction techniques for a fixed computational budget.
+
+As mentioned in the lecture, many quantities in statistics are integrals of the form
+$$\theta = \int h(x) f(x)\, dx = \mathbb{E}_f[h(X)],$$
+where $f$ is a density we can sample from (for example, a model fitted to data) and $h$ is a function of interest (for example, an indicator $h(x)=I(x>t)$ for a tail probability, or a loss/payoff function). Here, we consider three Monte Carlo estimators of $\theta$, each based on $n$ function evaluations:
+
+1.  **Simple Monte Carlo Estimator**: Generate $X_1,\dotsc,X_n$ i.i.d. from $f$ and compute
+    $$\hat{\theta}_{\rm MC} = \frac{1}{n}\sum_{i=1}^n h(X_i), \qquad \widehat{se}(\hat{\theta}_{\rm MC}) = \sqrt{\frac{1}{n}\cdot\frac{1}{n-1}\sum_{i=1}^n\left(h(X_i)-\hat{\theta}_{\rm MC}\right)^2}.$$
+2.  **Antithetic Variables Estimator**: Generate $U_1,\dotsc,U_{n/2}$ i.i.d. from ${\rm Uniform}[0,1]$ and use the inverse transform method to obtain the paired draws $X_i=F^{-1}(U_i)$ and $X_i'=F^{-1}(1-U_i)$, where $F$ is the cumulative distribution function of $f$. Then compute
+    $$\hat{\theta}_{\rm AV} = \frac{1}{n/2}\sum_{i=1}^{n/2} \frac{h(X_i)+h(X_i')}{2}.$$
+    The standard error is estimated from the $n/2$ i.i.d. pair averages $Y_i = \{h(X_i)+h(X_i')\}/2$.
+3.  **Importance Sampling Estimator**: Choose an importance function $\phi$ (a density whose support contains that of $h f$), generate $X_1,\dotsc,X_n$ i.i.d. from $\phi$, and compute
+    $$\hat{\theta}_{\rm IS} = \frac{1}{n}\sum_{i=1}^n \frac{h(X_i) f(X_i)}{\phi(X_i)}.$$
+    The standard error is estimated from the $n$ i.i.d. weighted values $W_i = h(X_i)f(X_i)/\phi(X_i)$. Recall from the lecture that the variance of $\hat{\theta}_{\rm IS}$ is small when $\phi$ is roughly proportional to $|h| f$, and can be larger than that of the simple estimator (even infinite) when $\phi$ has lighter tails than $|h| f$.
+
+For each estimator, also report the approximate $100(1-\alpha)\%$ confidence interval $\hat{\theta} \pm z_{\alpha/2}\cdot\widehat{se}(\hat{\theta})$ and the percent variance reduction relative to the simple Monte Carlo estimator,
+$$100\% \times \frac{\widehat{\rm Var}(\hat{\theta}_{\rm MC}) - \widehat{\rm Var}(\hat{\theta})}{\widehat{\rm Var}(\hat{\theta}_{\rm MC})}.$$
+You may optionally add a control variates estimator as a fourth method.
+
+## Track 2: Markov Chain Monte Carlo (MCMC)
+**Objective**: Sample from a complex posterior distribution $f(\theta|Data) \propto P(Data|\theta)P(\theta)$ where the normalizing constant is unavailable. We aim to compare the efficiency of sampling when the proposal distributions are different.
+
+Implement the Metropolis-Hastings Algorithm to generate a Markov Chain $\{\theta^{(1)}, \theta^{(2)}, \dots, \theta^{(N)}\}$:
+
+*  **Proposal**: Given current state $\theta^{(t)}$, sample a candidate $\theta^*$ from a proposal distribution $q(\theta^*|\theta^{(t)})$.
+*  **Acceptance**: Calculate the ratio:
+    $$\alpha(\theta^{(t)}, \theta^*) = \min\left(1, \frac{f(\theta^*)q(\theta^{(t)}|\theta^*)}{f(\theta^{(t)})q(\theta^*|\theta^{(t)})}\right)$$
+*  **Update**: Generate $U\sim {\rm Uniform}[0,1]$. If $U<\alpha(\theta^{(t)}, \theta^*)$, set $\theta^{(t+1)} = \theta^*$; otherwise, $\theta^{(t+1)} = \theta^{(t)}$.
+
+Compare the following choice of proposal distribution:
+
+1. Symmetric Random Walk Proposals: $\theta^*=\theta^{(t)}+Z$
+2. Independent Proposals: $q(\theta^*|\theta^{(t)})=q(\theta^*)$
+3. Nonsymmetric and Nonindependent Proposals
+
+## Track 3: Nonparametric Two-Sample Testing
+**Objective**: Detect differences between two multivariate distributions $F$ and $G$ using permutation-based inference. Compare the type I error and power of different tests.
+
+We can compare three different permutation-based two sample test:
+
+1.  **Energy Distance Test**:
+    $$T_{n,m} = \frac{nm}{n+m}\left(\frac{2}{nm}\sum\sum\|X_i-Y_j\| - \frac{1}{n^2}\sum\sum\|X_i-X_j\| - \frac{1}{m^2}\sum\sum\|Y_i-Y_j\|\right)$$
+2.  **Graph-Based Two-Sample Test**:
+We pool all data together
+$$
+\{Z_1,\dotsc,Z_{n+m}\}=\{X_1,\dotsc,X_n, Y_1,\dotsc,Y_m\}.
+$$
+Based these $n+m$ observations, we construct a graph $G=(V,E)$ such that the set of vertices is $V=\{1,\dotsc,n+m\}$ and there is an edge between $i$ and $j$ if $\|Z_i-Z_j\|\le Q$, where $Q$ is a positive number. Let $E$ be the collection of edges. The graph-based two-sample test statistic is defined as 
+$$
+R={1\over |E|}\sum_{e\in E}I_e,
+$$
+where $|E|$ means the number of edges in the edge set $E$. Here, $I_e=1$ if the two vertices connected by $e$ have the same label and $I_e=0$ otherwise. 
+3.  **Hotelling's $T$-square test**:
+    $$T^2={nm\over n+m}(\bar{X}-\bar{Y})^T\hat{\Sigma}^{-1}(\bar{X}-\bar{Y}),$$
+    where 
+$$
+\hat{\Sigma}={1 \over n+m-2}\left((n-1)\hat{\Sigma}_X+(m-1)\hat{\Sigma}_Y\right).
+$$
+Here, sample mean and sample covariance are defined as 
+$$
+\bar{X}={1\over n}\sum_{i=1}^nX_i,\qquad  \bar{Y}={1\over m}\sum_{i=1}^mY_i
+$$
+and
+$$
+\hat{\Sigma}_X={1\over n-1}\sum_{i=1}^n(X_i-\bar{X})(X_i-\bar{X})^T,\qquad  \hat{\Sigma}_Y={1\over m-1}\sum_{i=1}^m(Y_i-\bar{Y})(Y_i-\bar{Y})^T.
+$$
+
+# Questions
+No matter which track you choose, you need to finish the following questions. Projects will be evaluated primarily on correctness of implementation, quality of simulation design, depth of interpretation, and clarity of communication.
+
+## Question 1: Implementation (20 points)
+* **Track 1**: Function `mc_integrate()` must return the estimate, the estimated standard error, and the confidence interval for all three estimators, computed with the same number of function evaluations $n$. The `plot()` method must display, for each estimator, the running estimate as a function of the number of function evaluations together with its confidence band (and, optionally, histograms of $h(X_i)$, the pair averages $Y_i$, and the importance weights $W_i$). The `summary()` method gives a summary of the three estimators, including the number of function evaluations $n$, the significance level $\alpha$, and the estimate, standard error, lower and upper confidence bounds, and percent variance reduction of each estimator. The `print()` method prints out the estimate and standard error of all three estimators.
+* **Track 2**: Function `mcmc_sampler()` must return the chain when three different proposal distributions are used. The `plot()` method must provide trace and autocorrelation plots. The `summary()` method gives a summary of three Markov chains, including the length of chains, the acceptance rate, mean and standard deviation of three chains. The `print()` method print out the length of chains, mean and standard deviation of three chains.
+* **Track 3**: Function `perm_test()` must return the test-statistics, p-value, and decision. The `plot()` method must show the permutation distribution and $T_{obs}$. The `summary()` method gives a summary of three tests, including the test-statistics, the mean and standard deviation of permutation distribution, and p-value. The `print()` method print out the p-value, and decision.
+
+## Question 2: Comparison by Simulation Experiments (20 points)
+Conduct Monte Carlo simulations ($M \ge 500$ trials):
+
+* **Track 1**: Compare the bias, variance, and mean squared error of the three estimators, and the coverage of their confidence intervals, for a fixed budget of function evaluations. Use integrands whose true value $\theta$ is known (or can be computed accurately by `integrate()`). Identify cases where importance sampling clearly outperforms the simple estimator (for example, small tail probabilities) and cases where a poorly chosen importance function makes it worse.
+* **Track 2**: Compare mixing efficiency (can be measured by several different methods introduced in the lecture). Test the effect of different proposal distributions.
+* **Track 3**: Evaluate power and type I error. Compare the three permutation tests.
+
+## Question 3: Sensitivity Analysis (10 points)
+* **Track 1**: Student A: Impact of $n$ (the number of function evaluations) on the accuracy and coverage of the three estimators; Student B: Impact of the choice of importance function $\phi$ (e.g., its center and tail heaviness) on the variance of the importance sampling estimator.
+* **Track 2**: Student A: Impact of burn-in length; Student B: Impact of chain length.
+* **Track 3**: Student A: Impact of number of permutations ($B$); Student B: Impact of distance metrics ($L_1$ vs $L_2$).
+
+## Question 4: Real Data Application (50 points)
+Find your own dataset and apply your package to this dataset. Define a research question, analyze the data using your implemented method, and provide a conclusion for a non-technical audience. In this question, you need to prepare the following thing:
+
+* **Report**: A report to summarize your research question, motivation, analysis strategy, analysis results, and conclusion. The report should be limited to two pages. You are encouraged to use figures to deliver your messages. The one who reads your report has only a minimal statistical background, so you may want to avoid technical terminologies.
+* **Presentation**: A 5-7 minutes presentation to summarize your research question and findings. Assume your audience has only a very limited statistical background. Try to avoid technical terminologies. You need to give a presentation in the last three weeks and submit your slides (you need to use RMarkdown and submit both Rmd and pdf file).
+
+## Question 5: R Package Development  (Bonus question for UG section: extra 10 points for the final project, and the total points of the final project may not exceed 100 points) (Required question for GR section: 20 points so the total points of the final project is 120 points)
+Prepare an R package to include all your methods and a manual that explains how to use these methods? To complete this question, you need to submit a compressed R package.
+
+## **Submission Check List**
+* A report for **Question 1-3** (`Rmd` and `pdf`), which can be long and technical. 
+* A short report for **Question 4** (`Rmd` and `pdf`), which is limited to two pages. 
+* Presentation slides for **Question 4** (`Rmd` and `pdf`)
+* A compressed `R` package for **Question 5** (optional)
+
+
+# **Project Milestones and Checkpoints**
+To ensure steady progress, the final project will include the following required milestones. Milestones are not graded for content, but late or missing milestones may incur a small penalty. Groups that fail to meet early milestones often struggle to complete the project successfully. Students are strongly encouraged to start early.
+
+## Milestone 0 - Team Member Choice (Due: October 11)
+
+Email the instructor with your team members.
+
+## Milestone 1 - Track Selection and Proposal (Due: October 18)
+Submit a one-page proposal (PDF and Rmd) that includes:
+
+* Selected project track
+* Names of both team members
+* A brief description of the planned implementation
+* At least one potential real-world dataset (you do not need to finalize it yet)
+
+## Milestone 2 - Algorithm Implementation and Simulation Design (Due: November 8)
+Submit working code (PDF and Rmd) that implements the core algorithm required for your track. Your submission should include:
+
+* Annotated R code
+* A short document explaining how the algorithm works
+* A simulation plan including data-generating mechanisms and performance metrics
+
+## Milestone 3 - Real Data Plan (Due: November 15)
+Submit a brief description (PDF and Rmd) of your real-data analysis:
+
+* Dataset and source
+* Research question
+* Why your selected method is appropriate
+* Planned analysis steps
+
+## Final Submission (Due: December 13)
+Submit all project components as described in the submission checklist.

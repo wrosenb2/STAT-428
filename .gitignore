@@ -26,6 +26,12 @@ renv/library/
 renv/staging/
 renv/cache/
 renv/local/
+renv/python/
+
+# R package build and check artifacts
+*.Rcheck/
+*.tar.gz
+*.tgz
 
 # Ignore python venv
 
@@ -38,6 +44,7 @@ Thumbs.db
 # Ignore Rmd rendered documents and logs
 *.html
 *.pdf
+!assignment/Final.pdf
 *.docx
 *.log
 
@@ -45,5 +52,9 @@ Thumbs.db
 .vscode/
 .history/
 *.code-workspace
+
+# Local agent instructions (contains private links/context)
+AGENTS.md
+
 
 
