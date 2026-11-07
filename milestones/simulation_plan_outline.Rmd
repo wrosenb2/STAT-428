@@ -1,0 +1,39 @@
+---
+title: "STAT 428 — Milestone 2: Simulation Plan (Draft Outline)"
+author: "Jenny Li and William Rosenbloom"
+date: "2026.11.06"
+output: pdf_document
+---
+
+## Objective
+
+We plan to compare the mixing efficiency and computational cost of three Metropolis–Hastings proposal mechanisms: (1) symmetric Gaussian random walk, (2) independent Gaussian proposal, and (3) the Metropolis-adjusted Langevin algorithm (MALA). Each method will target the **same posterior distribution within each simulated dataset** so that comparisons are fair.
+
+## Data-generating mechanism
+
+We will generate synthetic data from a logistic regression model, inspired by the binary diagnosis outcome and correlated predictors in the Wisconsin Breast Cancer (Diagnostic) dataset. For an initial design, we propose $n=200$ observations and $p=3$ continuous predictors (plus an intercept):
+
+$$
+X_i \sim N_p(0, \Sigma_\rho), \qquad
+Y_i \mid X_i \sim \operatorname{Bernoulli}(p_i), \qquad
+\operatorname{logit}(p_i) = \beta_0 + X_i^T\beta.
+$$
+
+We will set a fixed true coefficient vector, for example $(\beta_0,\beta_1,\beta_2,\beta_3)=(-0.5,0.8,-0.6,0.5)$, and use a correlation matrix with $(\Sigma_\rho)_{jk}=\rho^{|j-k|}$.
+
+For posterior sampling, we plan to use independent normal priors centered at zero for the regression coefficients. We will choose the prior standard deviation after considering the scale of the predictors and discussing the model setup.
+
+## Simulation scenarios
+
+We will vary predictor correlation across three settings: **low** ($\rho=0$), **moderate** ($\rho=0.5$), and **high** ($\rho=0.9$). This allows us to examine whether correlated predictors make some proposal mechanisms mix less efficiently.
+
+For the final simulation study, we plan at least **500 independent replicated datasets per scenario**. Within each replicate, the same data, prior, initial-state strategy, and retained chain-length budget will be used for all three proposal mechanisms. Proposal tuning parameters will be selected in a preliminary pilot stage and kept fixed during the evaluation runs.
+
+## Performance measures
+
+- **Acceptance rate:** the percentage of proposed moves that are accepted by the MCMC algorithm.
+- **Autocorrelation:** measures how strongly the MCMC samples are correlated with each other. Lower autocorrelation generally means better mixing.
+- **Effective sample size (ESS):** measures how much useful information we get from the MCMC samples after accounting for autocorrelation. We will calculate ESS for each coefficient and use the minimum ESS to compare the three methods.
+- **Runtime and ESS per second:** runtime measures how long each method takes to run, while ESS per second tells us how efficiently each method generates useful samples.
+
+We will summarize each metric across simulated replicates and compare the three proposals at each correlation level. Trace plots and autocorrelation plots will also be examined for representative runs.
